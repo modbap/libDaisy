@@ -132,6 +132,11 @@ class System
      ** */
     static uint32_t GetTick();
 
+    /** \return The number of microseconds between the provided ticks.
+     ** Handles overflow, assuming ticks are not more than a full timer period apart.
+     ** */
+    static uint32_t GetUsBetweenTicks(uint32_t current, uint32_t last);
+
     /** Blocking Delay that uses the SysTick (1ms callback) to wait.
      ** \param delay_ms Time to delay in ms
      */

@@ -283,6 +283,11 @@ uint32_t System::GetTick()
     return tim_.GetTick();
 }
 
+uint32_t System::GetUsBetweenTicks(uint32_t current, uint32_t last)
+{
+    return tim_.GetUsBetweenTicks(current, last);
+}
+
 void System::Delay(uint32_t delay_ms)
 {
     HAL_Delay(delay_ms);
