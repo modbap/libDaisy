@@ -179,11 +179,13 @@ ASFLAGS += -g -ggdb
 endif
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow
-
 CFLAGS += -g -ggdb
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+
+C_USER_FLAGS ?=
+CFLAGS += $(C_USER_FLAGS)
 
 CPPFLAGS = $(CFLAGS)
 CPPFLAGS += \
@@ -196,6 +198,9 @@ CPPFLAGS += \
 -fno-unwind-tables \
 -fno-rtti \
 -Wno-register
+
+CPP_USER_FLAGS ?=
+CPPFLAGS += $(CPP_USER_FLAGS)
 
 C_STANDARD = -std=gnu11
 CPP_STANDARD ?= -std=gnu++14
