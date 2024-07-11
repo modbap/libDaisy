@@ -66,10 +66,10 @@
 // BOTH
 #define USBD_VID 1155
 #define USBD_LANGID_STRING 1033
-#define USBD_MANUFACTURER_STRING "Electrosmith"
+#define USBD_MANUFACTURER_STRING "Modbap Modular"
 // HS
 #define USBD_PID_HS 22336 // replace with our PID when we have one.
-#define USBD_PRODUCT_STRING_HS "Daisy Seed External"
+#define USBD_PRODUCT_STRING_HS "Trinity"
 #define USBD_CONFIGURATION_STRING_HS "CDC Config"
 #define USBD_INTERFACE_STRING_HS "CDC Interface"
 // FS
@@ -561,8 +561,8 @@ uint8_t *USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed,
 }
 
 /**
-  * @brief  Create the serial number string descriptor 
-  * @param  None 
+  * @brief  Create the serial number string descriptor
+  * @param  None
   * @retval None
   */
 static void Get_SerialNum(void)
@@ -583,9 +583,9 @@ static void Get_SerialNum(void)
 }
 
 /**
-  * @brief  Convert Hex 32Bits value into char 
+  * @brief  Convert Hex 32Bits value into char
   * @param  value: value to convert
-  * @param  pbuf: pointer to the buffer 
+  * @param  pbuf: pointer to the buffer
   * @param  len: buffer length
   * @retval None
   */
