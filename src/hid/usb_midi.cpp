@@ -18,7 +18,7 @@ class MidiUsbTransport::Impl
     }
 
     bool RxActive() { return rx_active_; }
-    void FlushRx() { rx_buffer_.Flush(); }
+    void FlushRx() { rx_ptr_ = 0; }
     void Tx(uint8_t* buffer, size_t size);
 
     void UsbToMidi(uint8_t* buffer, uint8_t length);
@@ -36,11 +36,12 @@ class MidiUsbTransport::Impl
     static constexpr size_t kBufferSize = 1024;
     bool                    rx_active_;
     // This corresponds to 256 midi messages
-    RingBuffer<uint8_t, kBufferSize> rx_buffer_;
     MidiRxParseCallback              parse_callback_;
     void*                            parse_context_;
 
-    // simple, self-managed buffer
+    // simple, self-managed buffers
+    uint8_t rx_buffer_[kBufferSize];
+    size_t  rx_ptr_;
     uint8_t tx_buffer_[kBufferSize];
     size_t  tx_ptr_;
 
@@ -75,8 +76,8 @@ void ReceiveCallback(uint8_t* buffer, uint32_t* length)
             size_t  remaining_bytes = *length - i;
             uint8_t packet_length   = remaining_bytes > 4 ? 4 : remaining_bytes;
             midi_usb_handle.UsbToMidi(buffer + i, packet_length);
-            midi_usb_handle.Parse();
         }
+        midi_usb_handle.Parse();
     }
 }
 
@@ -91,6 +92,7 @@ void MidiUsbTransport::Impl::Init(Config config)
     // This tells the USB middleware to send out MIDI descriptors instead of CDC
     usbd_mode = USBD_MODE_MIDI;
     config_   = config;
+    rx_ptr_   = 0;
 
     UsbHandle::UsbPeriph periph = UsbHandle::FS_INTERNAL;
     if(config_.periph == Config::EXTERNAL)
@@ -150,8 +152,8 @@ void MidiUsbTransport::Impl::UsbToMidi(uint8_t* buffer, uint8_t length)
     // Only writing as many bytes as necessary
     for(uint8_t i = 0; i < code_index_size_[code_index]; i++)
     {
-        if(rx_buffer_.writable() > 0)
-            rx_buffer_.Write(buffer[1 + i]);
+        if(rx_ptr_ < kBufferSize)
+            rx_buffer_[rx_ptr_++] = buffer[1 + i];
         else
         {
             rx_active_ = false; // disable on overflow
@@ -287,14 +289,9 @@ void MidiUsbTransport::Impl::Parse()
 {
     if(parse_callback_)
     {
-        uint8_t bytes[kBufferSize];
-        size_t  i = 0;
-        while(!rx_buffer_.isEmpty())
-        {
-            bytes[i++] = rx_buffer_.Read();
-        }
-        parse_callback_(bytes, i, parse_context_);
+        parse_callback_(rx_buffer_, rx_ptr_, parse_context_);
     }
+    rx_ptr_ = 0;
 }
 
 ////////////////////////////////////////////////
